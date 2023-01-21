@@ -32,7 +32,7 @@ public class ProductController {
     }
 
     @PutMapping("{id}")
-    Product replaceEmployee(@RequestBody Product newProduct, @PathVariable Long id) {
+    Product replaceProduct(@RequestBody Product newProduct, @PathVariable Long id) {
 
         return repository.findById(id)
                 .map(product -> {
@@ -47,7 +47,7 @@ public class ProductController {
     }
 
     @DeleteMapping("{id}")
-    void deleteEmployee(@PathVariable Long id) {
+    void deleteProduct(@PathVariable Long id) {
         repository.deleteById(id);
     }
 }
