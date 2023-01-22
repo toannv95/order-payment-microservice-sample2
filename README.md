@@ -1,9 +1,9 @@
 # This is my sample project when i learning about microservice
 # Description
 I use 3 microservices: 
-`order-service` to create orders. This services sends messages to Kafka. It uses the KafkaTemplate.
-`stock-service` to store and check amount product in inventory on the order
-`payment-service` to store and check customer balance on the order
+- `order-service` to create orders. This services sends messages to Kafka. It uses the KafkaTemplate.
+- `stock-service` to store and check amount product in inventory on the order
+- `payment-service` to store and check customer balance on the order
 
 # Technologies
 - Spring Boot
