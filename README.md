@@ -6,11 +6,11 @@ I use 3 microservices:
 `payment-service` to store and check customer balance on the order
 
 # Technologies
-Spring Boot
-Spring Kafka
-Kafka
-Zookeeper
-confluent cloud
+- Spring Boot
+- Spring Kafka
+- Kafka
+- Zookeeper
+- confluent cloud
 
 # How To Run
 Run `stock-service`, `payment-service` and `order-service`
