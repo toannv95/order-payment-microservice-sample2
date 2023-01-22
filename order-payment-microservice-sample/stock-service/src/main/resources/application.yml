@@ -2,15 +2,20 @@ server:
   port: 8081
 spring.application.name: stock
 spring.kafka:
-  bootstrap-servers: 127.0.0.1:56820
-  consumer:
-    key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
-    value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-    properties:
-      spring.json.trusted.packages: "*"
+  bootstrap-servers: pkc-1dkx6.ap-southeast-1.aws.confluent.cloud:9092
+  properties:
+    security.protocol: SASL_SSL
+    sasl.mechanism: PLAIN
+    sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username='N2HZ37R2CVUVD4LN' password='fW4x1Sp7e8Xm3sjNyOPoDn1xhu7pgrl1V646wuAg/05nqp1igW0hFFIR66J2KPqW';
   producer:
     key-serializer: org.apache.kafka.common.serialization.LongSerializer
     value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  streams:
+    properties:
+      default.key.serde: org.apache.kafka.common.serialization.Serdes$LongSerde
+      default.value.serde: org.springframework.kafka.support.serializer.JsonSerde
+      spring.json.trusted.packages: "*"
+    state-dir: /tmp/kafka-streams/
 
 spring.output.ansi.enabled: ALWAYS
 
