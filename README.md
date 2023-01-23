@@ -10,6 +10,7 @@ I use 3 microservices:
 - Spring Kafka
 - Kafka
 - Zookeeper
+- PostgreSQL
 - confluent cloud
 
 # How To Run
