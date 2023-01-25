@@ -37,7 +37,6 @@ public class OrderApp {
     public NewTopic orders() {
         return TopicBuilder.name("orders")
                 .partitions(3)
-                .compact()
                 .build();
     }
 
@@ -45,7 +44,6 @@ public class OrderApp {
     public NewTopic paymentTopic() {
         return TopicBuilder.name("payment-orders")
                 .partitions(3)
-                .compact()
                 .build();
     }
 
@@ -53,7 +51,6 @@ public class OrderApp {
     public NewTopic stockTopic() {
         return TopicBuilder.name("stock-orders")
                 .partitions(3)
-                .compact()
                 .build();
     }
 
