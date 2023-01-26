@@ -10,6 +10,7 @@ import org.springframework.kafka.config.StreamsBuilderFactoryBean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.toannguyen.Order;
+import org.toannguyen.repositories.OrderRepository;
 import org.toannguyen.services.OrderGeneratorService;
 
 import java.util.ArrayList;
@@ -25,13 +26,16 @@ public class OrderController {
     private KafkaTemplate<Long, Order> template;
     private StreamsBuilderFactoryBean kafkaStreamsFactory;
     private OrderGeneratorService orderGeneratorService;
+    private OrderRepository repository;
 
     public OrderController(KafkaTemplate<Long, Order> template,
                            StreamsBuilderFactoryBean kafkaStreamsFactory,
-                           OrderGeneratorService orderGeneratorService) {
+                           OrderGeneratorService orderGeneratorService,
+                           OrderRepository repository) {
         this.template = template;
         this.kafkaStreamsFactory = kafkaStreamsFactory;
         this.orderGeneratorService = orderGeneratorService;
+        this.repository = repository;
     }
 
     @PostMapping
@@ -42,14 +46,13 @@ public class OrderController {
         return order;
     }
 
-    @PostMapping("/generate")
-    public boolean create() {
-        orderGeneratorService.generate();
-        return true;
-    }
-
     @GetMapping
     public List<Order> all() {
+        return repository.findAll();
+    }
+
+    @GetMapping("stream")
+    public List<Order> ordersStream() {
         List<Order> orders = new ArrayList<>();
         ReadOnlyKeyValueStore<Long, Order> store = kafkaStreamsFactory
                 .getKafkaStreams()
@@ -59,5 +62,11 @@ public class OrderController {
         KeyValueIterator<Long, Order> it = store.all();
         it.forEachRemaining(kv -> orders.add(kv.value));
         return orders;
+    }
+
+    @PostMapping("generate/{number}")
+    public boolean create(@PathVariable Long number) {
+        orderGeneratorService.generate(number);
+        return true;
     }
 }

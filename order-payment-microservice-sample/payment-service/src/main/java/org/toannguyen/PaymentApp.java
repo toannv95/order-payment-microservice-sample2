@@ -14,7 +14,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.EnableKafkaStreams;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonSerde;
-import org.toannguyen.models.Reservation;
+import org.toannguyen.models.Customer;
+import org.toannguyen.repositories.CustomerRepository;
 
 import java.util.Random;
 
@@ -30,12 +31,14 @@ public class PaymentApp {
 
     @Autowired
     private KafkaTemplate<Long, Order> template;
+    @Autowired
+    CustomerRepository repository;
     private Random random = new Random();
 
     @Bean
     public KStream<Long, Order> stream(StreamsBuilder builder) {
         JsonSerde<Order> orderSerde = new JsonSerde<>(Order.class);
-        JsonSerde<Reservation> rsvSerde = new JsonSerde<>(Reservation.class);
+        JsonSerde<Customer> rsvSerde = new JsonSerde<>(Customer.class);
         KStream<Long, Order> stream = builder
                 .stream("orders", Consumed.with(Serdes.Long(), orderSerde))
                 .peek((k, order) -> LOG.info("New: {}", order));
@@ -46,9 +49,9 @@ public class PaymentApp {
         stream.selectKey((k, v) -> v.getCustomerId())
                 .groupByKey(Grouped.with(Serdes.Long(), orderSerde))
                 .aggregate(
-                        () -> new Reservation(random.nextInt(1000)),
+                        () -> new Customer(),
                         aggregatorService,
-                        Materialized.<Long, Reservation>as(customerOrderStoreSupplier)
+                        Materialized.<Long, Customer>as(customerOrderStoreSupplier)
                                 .withKeySerde(Serdes.Long())
                                 .withValueSerde(rsvSerde))
                 .toStream()
@@ -57,21 +60,22 @@ public class PaymentApp {
         return stream;
     }
 
-    Aggregator<Long, Order, Reservation> aggregatorService = (id, order, rsv) -> {
+    Aggregator<Long, Order, Customer> aggregatorService = (id, order, customer) -> {
+        customer = repository.findById(order.getProductId()).get();
         switch (order.getStatus()) {
             case "CONFIRMED" ->
-                    rsv.setAmountReserved(rsv.getAmountReserved() - order.getPrice());
+                    customer.setAmountReserved(customer.getAmountReserved() - order.getPrice());
             case "ROLLBACK" -> {
                 if (!order.getSource().equals("PAYMENT")) {
-                    rsv.setAmountAvailable(rsv.getAmountAvailable() + order.getPrice());
-                    rsv.setAmountReserved(rsv.getAmountReserved() - order.getPrice());
+                    customer.setAmountAvailable(customer.getAmountAvailable() + order.getPrice());
+                    customer.setAmountReserved(customer.getAmountReserved() - order.getPrice());
                 }
             }
             case "NEW" -> {
-                if (order.getPrice() <= rsv.getAmountAvailable()) {
-                    rsv.setAmountAvailable(rsv.getAmountAvailable()
+                if (order.getPrice() <= customer.getAmountAvailable()) {
+                    customer.setAmountAvailable(customer.getAmountAvailable()
                             - order.getPrice());
-                    rsv.setAmountReserved(rsv.getAmountReserved() + order.getPrice());
+                    customer.setAmountReserved(customer.getAmountReserved() + order.getPrice());
                     order.setStatus("ACCEPT");
                 } else {
                     order.setStatus("REJECT");
@@ -79,7 +83,7 @@ public class PaymentApp {
                 template.send("payment-orders", order.getId(), order);
             }
         }
-        LOG.info("{}", rsv);
-        return rsv;
+        LOG.info("{}", customer);
+        return customer;
     };
 }

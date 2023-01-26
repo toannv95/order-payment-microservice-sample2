@@ -14,7 +14,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.EnableKafkaStreams;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonSerde;
-import org.toannguyen.models.Reservation;
+import org.toannguyen.models.Product;
+import org.toannguyen.repositories.ProductRepository;
 
 import java.util.Random;
 
@@ -30,12 +31,14 @@ public class StockApp {
 
     @Autowired
     private KafkaTemplate<Long, Order> template;
+    @Autowired
+    ProductRepository repository;
     private Random random = new Random();
 
     @Bean
     public KStream<Long, Order> stream(StreamsBuilder builder) {
         JsonSerde<Order> orderSerde = new JsonSerde<>(Order.class);
-        JsonSerde<Reservation> rsvSerde = new JsonSerde<>(Reservation.class);
+        JsonSerde<Product> rsvSerde = new JsonSerde<>(Product.class);
         KStream<Long, Order> stream = builder
                 .stream("orders", Consumed.with(Serdes.Long(), orderSerde))
                 .peek((k, order) -> LOG.info("New: {}", order));
@@ -43,19 +46,20 @@ public class StockApp {
         KeyValueBytesStoreSupplier stockOrderStoreSupplier =
                 Stores.persistentKeyValueStore("stock-orders");
 
-        Aggregator<Long, Order, Reservation> aggrSrv = (id, order, rsv) -> {
+        Aggregator<Long, Order, Product> aggrSrv = (id, order, product) -> {
+            product = repository.findById(order.getProductId()).get();
             switch (order.getStatus()) {
-                case "CONFIRMED" -> rsv.setItemsReserved(rsv.getItemsReserved() - order.getProductCount());
+                case "CONFIRMED" -> product.setReservedItems(product.getReservedItems() - order.getProductCount());
                 case "ROLLBACK" -> {
                     if (!order.getSource().equals("STOCK")) {
-                        rsv.setItemsAvailable(rsv.getItemsAvailable() + order.getProductCount());
-                        rsv.setItemsReserved(rsv.getItemsReserved() - order.getProductCount());
+                        product.setAvailableItems(product.getAvailableItems() + order.getProductCount());
+                        product.setReservedItems(product.getReservedItems() - order.getProductCount());
                     }
                 }
                 case "NEW" -> {
-                    if (order.getProductCount() <= rsv.getItemsAvailable()) {
-                        rsv.setItemsAvailable(rsv.getItemsAvailable() - order.getProductCount());
-                        rsv.setItemsReserved(rsv.getItemsReserved() + order.getProductCount());
+                    if (order.getProductCount() <= product.getAvailableItems()) {
+                        product.setAvailableItems(product.getAvailableItems() - order.getProductCount());
+                        product.setReservedItems(product.getReservedItems() + order.getProductCount());
                         order.setStatus("ACCEPT");
                     } else {
                         order.setStatus("REJECT");
@@ -64,14 +68,15 @@ public class StockApp {
                     template.send("stock-orders", order.getId(), order);
                 }
             }
-            LOG.info("{}", rsv);
-            return rsv;
+            repository.save(product);
+            LOG.info("{}", product);
+            return product;
         };
 
         stream.selectKey((k, v) -> v.getProductId())
                 .groupByKey(Grouped.with(Serdes.Long(), orderSerde))
-                .aggregate(() -> new Reservation(random.nextInt(100)), aggrSrv,
-                        Materialized.<Long, Reservation>as(stockOrderStoreSupplier)
+                .aggregate(() -> new Product(), aggrSrv,
+                        Materialized.<Long, Product>as(stockOrderStoreSupplier)
                                 .withKeySerde(Serdes.Long())
                                 .withValueSerde(rsvSerde))
                 .toStream()

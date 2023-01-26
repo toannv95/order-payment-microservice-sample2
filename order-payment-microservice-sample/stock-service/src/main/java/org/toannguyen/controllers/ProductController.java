@@ -6,6 +6,7 @@ import org.toannguyen.repositories.ProductRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @RestController
 @RequestMapping("products")
@@ -50,4 +51,17 @@ public class ProductController {
     void deleteProduct(@PathVariable Long id) {
         repository.deleteById(id);
     }
+
+    @PostMapping("generate/{number}")
+    void autoGenerate(@PathVariable Long number) {
+        Random r = new Random();
+        for (int i = 0; i < 50; i++) {
+
+            Product product = new Product();
+            product.setName("Product "+i);
+            product.setAvailableItems(r.nextInt(1000));
+            product.setReservedItems(0);
+            repository.save(product);
+        }
+    };
 }

@@ -17,6 +17,7 @@ import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.support.serializer.JsonSerde;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.toannguyen.repositories.OrderRepository;
 import org.toannguyen.services.OrderManageService;
 
 import java.time.Duration;
@@ -56,6 +57,8 @@ public class OrderApp {
 
     @Autowired
     OrderManageService orderManageService;
+    @Autowired
+    OrderRepository repository;
 
     @Bean
     public KStream<Long, Order> stream(StreamsBuilder builder) {
@@ -68,9 +71,11 @@ public class OrderApp {
                         orderManageService::confirm,
                         JoinWindows.of(Duration.ofSeconds(10)),
                         StreamJoined.with(Serdes.Long(), orderSerde, orderSerde))
-                .peek((k, o) -> LOG.info("Output: {}", o))
+                .peek((k, o) -> {
+                    LOG.info("Output: {}", o);
+                    repository.save(o);
+                })
                 .to("orders");
-
         return stream;
     }
 
