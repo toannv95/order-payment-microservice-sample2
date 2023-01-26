@@ -6,6 +6,8 @@ import org.toannguyen.repositories.CustomerRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+
 @RestController
 @RequestMapping("customers")
 public class CustomerController {
@@ -48,5 +50,16 @@ public class CustomerController {
     @DeleteMapping("{id}")
     void deleteCustomer(@PathVariable Long id) {
         repository.deleteById(id);
+    }
+    @PostMapping("generate/{number}")
+    void autoGenerate(@PathVariable Long number) {
+        Random r = new Random();
+        for (int i = 0; i <= number; i++) {
+            Customer customer = new Customer();
+            customer.setName("name"+i);
+            customer.setAmountAvailable(r.nextInt(1000));
+            customer.setAmountReserved(0);
+            repository.save(customer);
+        }
     }
 }

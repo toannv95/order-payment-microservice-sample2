@@ -7,11 +7,11 @@ import org.toannguyen.Order;
 public class OrderManageService {
 
     public Order confirm(Order orderPayment, Order orderStock) {
-        Order o = new Order(orderPayment.getId(),
-                orderPayment.getCustomerId(),
-                orderPayment.getProductId(),
-                orderPayment.getProductCount(),
-                orderPayment.getPrice());
+        Order o = new Order();
+        o.setCustomerId(orderPayment.getCustomerId());
+        o.setProductId(orderPayment.getProductId());
+        o.setProductCount(orderPayment.getProductCount());
+        o.setPrice(orderPayment.getPrice());
         if (orderPayment.getStatus().equals("ACCEPT") &&
                 orderStock.getStatus().equals("ACCEPT")) {
             o.setStatus("CONFIRMED");
