@@ -10,6 +10,7 @@ import org.springframework.kafka.config.StreamsBuilderFactoryBean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.toannguyen.Order;
+import org.toannguyen.repositories.OrderRepository;
 import org.toannguyen.services.OrderGeneratorService;
 
 import java.util.ArrayList;
@@ -26,12 +27,16 @@ public class OrderController {
     private StreamsBuilderFactoryBean kafkaStreamsFactory;
     private OrderGeneratorService orderGeneratorService;
 
+    private OrderRepository repository;
+
     public OrderController(KafkaTemplate<Long, Order> template,
                            StreamsBuilderFactoryBean kafkaStreamsFactory,
-                           OrderGeneratorService orderGeneratorService) {
+                           OrderGeneratorService orderGeneratorService,
+                           OrderRepository repository) {
         this.template = template;
         this.kafkaStreamsFactory = kafkaStreamsFactory;
         this.orderGeneratorService = orderGeneratorService;
+        this.repository = repository;
     }
 
     @PostMapping
@@ -42,14 +47,19 @@ public class OrderController {
         return order;
     }
 
-    @PostMapping("/generate")
-    public boolean create() {
-        orderGeneratorService.generate();
+    @GetMapping
+    public List<Order> all() {
+        return repository.findAll();
+    }
+
+    @PostMapping("generate/{number}")
+    public boolean create(@PathVariable Long number) {
+        orderGeneratorService.generate(number);
         return true;
     }
 
-    @GetMapping
-    public List<Order> all() {
+    @GetMapping("stream")
+    public List<Order> ordersStream() {
         List<Order> orders = new ArrayList<>();
         ReadOnlyKeyValueStore<Long, Order> store = kafkaStreamsFactory
                 .getKafkaStreams()
