@@ -55,8 +55,7 @@ public class ProductController {
     @PostMapping("generate/{number}")
     void autoGenerate(@PathVariable Long number) {
         Random r = new Random();
-        for (int i = 0; i < 50; i++) {
-
+        for (int i = 1; i <= number; i++) {
             Product product = new Product();
             product.setName("Product "+i);
             product.setAvailableItems(r.nextInt(1000));

@@ -55,7 +55,7 @@ public class CustomerController {
     @PostMapping("generate/{number}")
     void autoGenerate(@PathVariable Long number) {
         Random r = new Random();
-        for (int i = 0; i <= number; i++) {
+        for (int i = 1; i <= number; i++) {
             Customer customer = new Customer();
             customer.setName("name"+i);
             customer.setAmountAvailable(r.nextInt(1000));

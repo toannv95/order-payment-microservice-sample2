@@ -61,7 +61,7 @@ public class PaymentApp {
     }
 
     Aggregator<Long, Order, Customer> aggregatorService = (id, order, customer) -> {
-        customer = repository.findById(order.getProductId()).get();
+        customer = repository.findById(order.getCustomerId()).get();
         switch (order.getStatus()) {
             case "CONFIRMED" ->
                     customer.setAmountReserved(customer.getAmountReserved() - order.getPrice());
@@ -83,6 +83,7 @@ public class PaymentApp {
                 template.send("payment-orders", order.getId(), order);
             }
         }
+        repository.save(customer);
         LOG.info("{}", customer);
         return customer;
     };
