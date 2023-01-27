@@ -21,4 +21,4 @@ I use 3 microservices:
 5. Generate seed data with POST method:
 - localhost:8081/products/generate/{number}
 - localhost:8082/customers/generate/{number}
-Example: If you wan to create 100 product records, call `localhost:8081/products/generate/100` from postman.
+- Example: If you wan to create 100 product records, call `localhost:8081/products/generate/100` from postman.
