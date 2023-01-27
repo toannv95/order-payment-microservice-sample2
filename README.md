@@ -14,6 +14,11 @@ I use 3 microservices:
 - confluent cloud
 
 # How To Run
-Run `stock-service`, `payment-service` and `order-service`
-You can use postman sample api for this project:
-https://drive.google.com/file/d/15MthwjX5nWHSRZlYZhaq-3JhFQxqgOB8/view?usp=sharing
+1. Install `postgres` in local machine with port `5432`
+2. Open postgres pgadmin, and create 3 databases: `orderdb`, `paymentdb`, `stockdb`
+3. Import api collection json file `order-payment-stock-service.postman_collection.json` in postman folder to `postman application`
+4. Run `stock-service`, `payment-service` and `order-service`
+5. Generate seed data with POST method:
+- localhost:8081/products/generate/{number}
+- localhost:8082/customers/generate/{number}
+Example: If you wan to create 100 product records, call `localhost:8081/products/generate/100` from postman.
