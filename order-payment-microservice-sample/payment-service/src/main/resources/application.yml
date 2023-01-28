@@ -6,13 +6,10 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: 123456
-    url: jdbc:postgresql://localhost:5432/paymentdb
-  jpa:
-    show-sql: true
-    generate-ddl: true
-    hibernate:
-      ddl-auto: update
-    database: postgresql
+    url: jdbc:postgresql://localhost:5434/paymentdb
+  sql:
+    init:
+      mode: always
 spring.kafka:
   bootstrap-servers: pkc-1dkx6.ap-southeast-1.aws.confluent.cloud:9092
   properties:

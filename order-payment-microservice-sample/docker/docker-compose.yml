@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  order-compose:
+    image: postgres:alpine
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: orderdb
+    volumes:
+      - ./pgdata/orderdb:/var/lib/postgresql/data:z
+  stock-compose:
+    image: postgres:alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: stockdb
+    volumes:
+      - ./pgdata/stockdb:/var/lib/postgresql/data:z
+  payment-compose:
+    image: postgres:alpine
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: paymentdb
+    volumes:
+      - ./pgdata/paymentdb:/var/lib/postgresql/data:z
