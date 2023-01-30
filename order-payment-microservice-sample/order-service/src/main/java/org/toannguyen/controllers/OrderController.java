@@ -43,6 +43,7 @@ public class OrderController {
         order.setId(id.incrementAndGet());
         template.send("orders", order.getId(), order);
         LOG.info("Sent: {}", order);
+        repository.save(order);
         return order;
     }
 
