@@ -14,8 +14,7 @@ I use 3 microservices:
 - confluent cloud
 
 # How To Run
-1. Run docker-compose in docker folder
-2. Run `stock-service`, `payment-service` and `order-service`
+1. Go to docker folder, then run command: `docker compose up -d`
 
 # How to call API
 1. Import api collection json file `order-payment-stock-service.postman_collection.json` in postman folder to `postman application`

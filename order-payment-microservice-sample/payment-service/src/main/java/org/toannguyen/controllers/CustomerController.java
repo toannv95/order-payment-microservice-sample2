@@ -1,5 +1,6 @@
 package org.toannguyen.controllers;
 
+import com.github.javafaker.Faker;
 import org.springframework.web.bind.annotation.*;
 import org.toannguyen.models.Customer;
 import org.toannguyen.repositories.CustomerRepository;
@@ -37,7 +38,9 @@ public class CustomerController {
 
         return repository.findById(id)
                 .map(customer -> {
-                    customer.setName(newCustomer.getName());
+                    customer.setFirstName(newCustomer.getFirstName());
+                    customer.setLastName(newCustomer.getLastName());
+                    customer.setAddress(newCustomer.getAddress());
                     customer.setAmountAvailable(newCustomer.getAmountAvailable());
                     customer.setAmountReserved(newCustomer.getAmountReserved());
                     return repository.save(customer);
@@ -55,9 +58,12 @@ public class CustomerController {
     @PostMapping("generate/{number}")
     void autoGenerate(@PathVariable Long number) {
         Random r = new Random();
+        Faker faker = new Faker();
         for (int i = 1; i <= number; i++) {
             Customer customer = new Customer();
-            customer.setName("name"+i);
+            customer.setLastName(faker.name().lastName());
+            customer.setFirstName(faker.name().firstName());
+            customer.setAddress(faker.address().fullAddress());
             customer.setAmountAvailable(r.nextInt(1000));
             customer.setAmountReserved(0);
             repository.save(customer);

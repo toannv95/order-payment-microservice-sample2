@@ -1,5 +1,6 @@
 package org.toannguyen.controllers;
 
+import com.github.javafaker.Faker;
 import org.springframework.web.bind.annotation.*;
 import org.toannguyen.models.Product;
 import org.toannguyen.repositories.ProductRepository;
@@ -55,9 +56,12 @@ public class ProductController {
     @PostMapping("generate/{number}")
     void autoGenerate(@PathVariable Long number) {
         Random r = new Random();
+        Faker faker = new Faker();
         for (int i = 1; i <= number; i++) {
             Product product = new Product();
-            product.setName("Product "+i);
+            product.setCode(faker.code().asin());
+            product.setColor(faker.color().name());
+            product.setName(faker.commerce().productName());
             product.setAvailableItems(r.nextInt(1000));
             product.setReservedItems(0);
             repository.save(product);
