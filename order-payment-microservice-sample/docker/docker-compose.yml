@@ -6,6 +6,8 @@ services:
       - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - default
   kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
@@ -20,6 +22,8 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - default
   order-postres:
     image: postgres:alpine
     ports:
@@ -27,6 +31,8 @@ services:
     environment:
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: orderdb
+    networks:
+      - order
   order-service:
     container_name: order-service
     image: toannguyenpersonify/order-service:1.0
@@ -46,6 +52,9 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=123456
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:19092
+    networks:
+      - default
+      - order
   stock-postres:
     image: postgres:alpine
     ports:
@@ -53,6 +62,8 @@ services:
     environment:
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: stockdb
+    networks:
+      - stock
   stock-service:
     container_name: stock-service
     image: toannguyenpersonify/stock-service:1.0
@@ -72,6 +83,9 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=123456
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:19092
+    networks:
+      - stock
+      - default
   payment-postres:
     image: postgres:alpine
     ports:
@@ -79,6 +93,8 @@ services:
     environment:
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: paymentdb
+    networks:
+      - payment
   payment-service:
     container_name: payment-service
     image: toannguyenpersonify/payment-service:1.0
@@ -98,3 +114,11 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=123456
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:19092
+    networks:
+      - default
+      - payment
+networks:
+  default:
+  order:
+  stock:
+  payment:
