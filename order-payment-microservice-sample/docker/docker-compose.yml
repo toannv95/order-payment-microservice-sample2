@@ -29,8 +29,9 @@ services:
       POSTGRES_DB: orderdb
   order-service:
     container_name: order-service
+    image: toannguyenpersonify/payment-service:1.0
     build:
-      context: ../order-service
+      #context: ../order-service
       args:
         - APP_NAME=order-service
         - APP_VERSION=1.0-SNAPSHOT
@@ -52,8 +53,9 @@ services:
       POSTGRES_DB: stockdb
   stock-service:
     container_name: stock-service
+    image: toannguyenpersonify/payment-service:1.0
     build:
-      context: ../stock-service
+      #context: ../order-service
       args:
         - APP_NAME=stock-service
         - APP_VERSION=1.0-SNAPSHOT
@@ -76,8 +78,9 @@ services:
       POSTGRES_DB: paymentdb
   payment-service:
     container_name: payment-service
+    image: toannguyenpersonify/payment-service:1.0
     build:
-      context: ../payment-service
+      #context: ../order-service
       args:
         - APP_NAME=payment-service
         - APP_VERSION=1.0-SNAPSHOT
