@@ -29,7 +29,7 @@ services:
       POSTGRES_DB: orderdb
   order-service:
     container_name: order-service
-    image: toannguyenpersonify/payment-service:1.0
+    image: toannguyenpersonify/order-service:1.0
     build:
       #context: ../order-service
       args:
@@ -38,6 +38,7 @@ services:
     depends_on:
       - order-postres
       - kafka
+      - zookeeper
     ports:
       - 8080:8080
     environment:
@@ -53,7 +54,7 @@ services:
       POSTGRES_DB: stockdb
   stock-service:
     container_name: stock-service
-    image: toannguyenpersonify/payment-service:1.0
+    image: toannguyenpersonify/stock-service:1.0
     build:
       #context: ../order-service
       args:
