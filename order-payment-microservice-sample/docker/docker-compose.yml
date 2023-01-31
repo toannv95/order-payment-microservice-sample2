@@ -45,6 +45,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://order-postres:5432/orderdb
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=123456
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:19092
   stock-postres:
     image: postgres:alpine
     ports:
@@ -70,6 +71,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stock-postres:5432/stockdb
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=123456
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:19092
   payment-postres:
     image: postgres:alpine
     ports:
@@ -95,3 +97,4 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://payment-postres:5432/paymentdb
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=123456
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:19092
