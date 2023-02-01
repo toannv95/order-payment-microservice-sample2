@@ -1,4 +1,4 @@
-FROM openjdk:19-alpine
+FROM openjdk:19
 
 ARG APP_NAME="stock-service"
 ARG APP_VERSION="1.0-SNAPSHOT"
