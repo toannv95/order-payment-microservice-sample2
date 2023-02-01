@@ -11,7 +11,11 @@ spring:
     init:
       mode: always
 spring.kafka:
-  bootstrap-servers: localhost:9092
+  bootstrap-servers: localhost:9092 #pkc-1dkx6.ap-southeast-1.aws.confluent.cloud:9092
+  #properties:
+    #security.protocol: SASL_SSL
+    #sasl.mechanism: PLAIN
+    #sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username='N2HZ37R2CVUVD4LN' password='fW4x1Sp7e8Xm3sjNyOPoDn1xhu7pgrl1V646wuAg/05nqp1igW0hFFIR66J2KPqW';
   producer:
     key-serializer: org.apache.kafka.common.serialization.LongSerializer
     value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

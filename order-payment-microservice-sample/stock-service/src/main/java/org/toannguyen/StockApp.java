@@ -47,30 +47,36 @@ public class StockApp {
                 Stores.persistentKeyValueStore("stock-orders");
 
         Aggregator<Long, Order, Product> aggrSrv = (id, order, product) -> {
-            product = repository.findById(order.getProductId()).get();
-            switch (order.getStatus()) {
-                case "CONFIRMED" -> product.setReservedItems(product.getReservedItems() - order.getProductCount());
-                case "ROLLBACK" -> {
-                    if (!order.getSource().equals("STOCK")) {
-                        product.setAvailableItems(product.getAvailableItems() + order.getProductCount());
-                        product.setReservedItems(product.getReservedItems() - order.getProductCount());
+            try{
+                product = repository.findById(order.getProductId()).get();
+                switch (order.getStatus()) {
+                    case "CONFIRMED" -> product.setReservedItems(product.getReservedItems() - order.getProductCount());
+                    case "ROLLBACK" -> {
+                        if (!order.getSource().equals("STOCK")) {
+                            product.setAvailableItems(product.getAvailableItems() + order.getProductCount());
+                            product.setReservedItems(product.getReservedItems() - order.getProductCount());
+                        }
+                    }
+                    case "NEW" -> {
+                        if (order.getProductCount() <= product.getAvailableItems()) {
+                            product.setAvailableItems(product.getAvailableItems() - order.getProductCount());
+                            product.setReservedItems(product.getReservedItems() + order.getProductCount());
+                            order.setStatus("ACCEPT");
+                        } else {
+                            order.setStatus("REJECT");
+                        }
+                        // Todo: Need to handle exception
+                        template.send("stock-orders", order.getId(), order);
                     }
                 }
-                case "NEW" -> {
-                    if (order.getProductCount() <= product.getAvailableItems()) {
-                        product.setAvailableItems(product.getAvailableItems() - order.getProductCount());
-                        product.setReservedItems(product.getReservedItems() + order.getProductCount());
-                        order.setStatus("ACCEPT");
-                    } else {
-                        order.setStatus("REJECT");
-                    }
-                    // Todo: Need to handle exception
-                    template.send("stock-orders", order.getId(), order);
-                }
+                repository.save(product);
+                LOG.info("{}", product);
+                return product;
             }
-            repository.save(product);
-            LOG.info("{}", product);
-            return product;
+            catch (Exception ex){
+                LOG.info("Exception: {}", ex.getMessage());
+                return null;
+            }
         };
 
         stream.selectKey((k, v) -> v.getProductId())

@@ -61,30 +61,36 @@ public class PaymentApp {
     }
 
     Aggregator<Long, Order, Customer> aggregatorService = (id, order, customer) -> {
-        customer = repository.findById(order.getCustomerId()).get();
-        switch (order.getStatus()) {
-            case "CONFIRMED" ->
-                    customer.setAmountReserved(customer.getAmountReserved() - order.getPrice());
-            case "ROLLBACK" -> {
-                if (!order.getSource().equals("PAYMENT")) {
-                    customer.setAmountAvailable(customer.getAmountAvailable() + order.getPrice());
-                    customer.setAmountReserved(customer.getAmountReserved() - order.getPrice());
+        try{
+            customer = repository.findById(order.getCustomerId()).get();
+            switch (order.getStatus()) {
+                case "CONFIRMED" ->
+                        customer.setAmountReserved(customer.getAmountReserved() - order.getPrice());
+                case "ROLLBACK" -> {
+                    if (!order.getSource().equals("PAYMENT")) {
+                        customer.setAmountAvailable(customer.getAmountAvailable() + order.getPrice());
+                        customer.setAmountReserved(customer.getAmountReserved() - order.getPrice());
+                    }
+                }
+                case "NEW" -> {
+                    if (order.getPrice() <= customer.getAmountAvailable()) {
+                        customer.setAmountAvailable(customer.getAmountAvailable()
+                                - order.getPrice());
+                        customer.setAmountReserved(customer.getAmountReserved() + order.getPrice());
+                        order.setStatus("ACCEPT");
+                    } else {
+                        order.setStatus("REJECT");
+                    }
+                    template.send("payment-orders", order.getId(), order);
                 }
             }
-            case "NEW" -> {
-                if (order.getPrice() <= customer.getAmountAvailable()) {
-                    customer.setAmountAvailable(customer.getAmountAvailable()
-                            - order.getPrice());
-                    customer.setAmountReserved(customer.getAmountReserved() + order.getPrice());
-                    order.setStatus("ACCEPT");
-                } else {
-                    order.setStatus("REJECT");
-                }
-                template.send("payment-orders", order.getId(), order);
-            }
+            repository.save(customer);
+            LOG.info("{}", customer);
+            return customer;
         }
-        repository.save(customer);
-        LOG.info("{}", customer);
-        return customer;
+        catch (Exception ex){
+            LOG.info("Exception: {}", ex.getMessage());
+            return null;
+        }
     };
 }

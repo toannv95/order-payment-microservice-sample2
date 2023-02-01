@@ -15,27 +15,19 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka:19092,LISTENER_DOCKER_EXTERNAL://host.docker.internal:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_BROKER_ID: 1
       KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     networks:
       - default
-  order-postres:
-    image: postgres:alpine
-    ports:
-      - "5435:5432"
-    environment:
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: orderdb
-    networks:
-      - order
   order-service:
     container_name: order-service
-    image: toannguyenpersonify/order-service:1.0
+    image: toannguyenpersonify/order-service:3.1
     build:
       #context: ../order-service
       args:
@@ -55,18 +47,9 @@ services:
     networks:
       - default
       - order
-  stock-postres:
-    image: postgres:alpine
-    ports:
-      - "5433:5432"
-    environment:
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: stockdb
-    networks:
-      - stock
   stock-service:
     container_name: stock-service
-    image: toannguyenpersonify/stock-service:1.0
+    image: toannguyenpersonify/stock-service:3.1
     build:
       #context: ../order-service
       args:
@@ -86,18 +69,9 @@ services:
     networks:
       - stock
       - default
-  payment-postres:
-    image: postgres:alpine
-    ports:
-      - "5434:5432"
-    environment:
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: paymentdb
-    networks:
-      - payment
   payment-service:
     container_name: payment-service
-    image: toannguyenpersonify/payment-service:1.0
+    image: toannguyenpersonify/payment-service:3.1
     build:
       #context: ../order-service
       args:
@@ -117,6 +91,33 @@ services:
     networks:
       - default
       - payment
+  payment-postres:
+    image: postgres:alpine
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: paymentdb
+    networks:
+      - payment
+  stock-postres:
+    image: postgres:alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: stockdb
+    networks:
+      - stock
+  order-postres:
+    image: postgres:alpine
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: orderdb
+    networks:
+      - order
 networks:
   default:
   order:
