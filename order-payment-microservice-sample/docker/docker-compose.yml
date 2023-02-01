@@ -27,9 +27,10 @@ services:
       - default
   order-service:
     container_name: order-service
-    image: toannguyenpersonify/order-service:3.1
+    #image: toannguyenpersonify/order-service:3.1
     build:
-      #context: ../order-service
+      context: ../order-service
+      dockerfile: Dockerfile
       args:
         - APP_NAME=order-service
         - APP_VERSION=1.0-SNAPSHOT
@@ -49,9 +50,10 @@ services:
       - order
   stock-service:
     container_name: stock-service
-    image: toannguyenpersonify/stock-service:3.1
+    #image: toannguyenpersonify/stock-service:3.1
     build:
-      #context: ../order-service
+      context: ../stock-service
+      dockerfile: Dockerfile
       args:
         - APP_NAME=stock-service
         - APP_VERSION=1.0-SNAPSHOT
@@ -71,9 +73,10 @@ services:
       - default
   payment-service:
     container_name: payment-service
-    image: toannguyenpersonify/payment-service:3.1
+    #image: toannguyenpersonify/payment-service:3.1
     build:
-      #context: ../order-service
+      context: ../payment-service
+      dockerfile: Dockerfile
       args:
         - APP_NAME=payment-service
         - APP_VERSION=1.0-SNAPSHOT
@@ -120,6 +123,7 @@ services:
       - order
 networks:
   default:
+    driver: bridge
   order:
   stock:
   payment:
