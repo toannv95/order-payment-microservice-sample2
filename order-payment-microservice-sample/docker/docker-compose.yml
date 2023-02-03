@@ -25,6 +25,17 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     networks:
       - default
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    restart: "no"
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:19092"
+    depends_on:
+      - kafka
+    networks:
+      - default
   order-service:
     container_name: order-service
     image: toannguyenpersonify/order-service:4.0
@@ -121,6 +132,21 @@ services:
       POSTGRES_DB: orderdb
     networks:
       - order
+  pgadmin-compose:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "toan.nguyen@personifyinc.com"
+      PGADMIN_DEFAULT_PASSWORD: "password"
+    ports:
+      - "16543:80"
+    depends_on:
+      - order-postres
+      - payment-postres
+      - stock-postres
+    networks:
+      - order
+      - payment
+      - stock
 networks:
   default:
     driver: bridge
