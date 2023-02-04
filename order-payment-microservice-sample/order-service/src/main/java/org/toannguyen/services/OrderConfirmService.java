@@ -4,8 +4,7 @@ import org.springframework.stereotype.Service;
 import org.toannguyen.Order;
 
 @Service
-public class OrderManageService {
-
+public class OrderConfirmService {
     public Order confirm(Order orderPayment, Order orderStock) {
         Order o = new Order();
         o.setCustomerId(orderPayment.getCustomerId());
