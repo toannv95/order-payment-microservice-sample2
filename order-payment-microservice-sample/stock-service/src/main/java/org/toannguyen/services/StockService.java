@@ -16,21 +16,17 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonSerde;
 import org.springframework.stereotype.Service;
 import org.toannguyen.Order;
-import org.toannguyen.StockApp;
 import org.toannguyen.models.Product;
 import org.toannguyen.repositories.ProductRepository;
-
-import java.util.Random;
 
 @Service
 @EnableKafkaStreams
 public class StockService {
-    private final Logger LOG = LoggerFactory.getLogger(StockApp.class);
+    private final Logger LOG = LoggerFactory.getLogger(StockService.class);
     @Autowired
     private KafkaTemplate<Long, Order> template;
     @Autowired
     ProductRepository repository;
-    private Random random = new Random();
 
     @Bean
     public NewTopic stockTopic() {

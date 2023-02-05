@@ -16,20 +16,16 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonSerde;
 import org.springframework.stereotype.Service;
 import org.toannguyen.Order;
-import org.toannguyen.PaymentApp;
 import org.toannguyen.models.Customer;
 import org.toannguyen.repositories.CustomerRepository;
-
-import java.util.Random;
 @Service
 @EnableKafkaStreams
 public class PaymentService {
-    private final Logger LOG = LoggerFactory.getLogger(PaymentApp.class);
+    private final Logger LOG = LoggerFactory.getLogger(PaymentService.class);
     @Autowired
     private KafkaTemplate<Long, Order> template;
     @Autowired
     CustomerRepository repository;
-    private Random random = new Random();
 
     @Bean
     public NewTopic paymentTopic() {
